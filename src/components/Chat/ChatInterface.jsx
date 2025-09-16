@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
 import MessageList from "./MessageList";
-import InputBox from "./InputBox";
-import SessionControls from "./SessionControls";
 import LoadingSpinner from "../UI/LoadingSpinner";
 import { useChat } from "../../hooks/useChat";
 import { useSession } from "../../hooks/useSession";
@@ -43,63 +41,46 @@ const ChatInterface = () => {
   } = useChat(currentSessionId);
 
   const [showWelcome, setShowWelcome] = useState(true);
-  const [connectionStatus, setConnectionStatus] = useState("checking");
+  const [inputValue, setInputValue] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Handle initial welcome message
   useEffect(() => {
     if (currentSessionId && messages.length === 0 && showWelcome) {
-      const timer = setTimeout(() => {
-        addSystemMessage(DEFAULT_MESSAGES.WELCOME);
-        setShowWelcome(false);
-      }, 1000);
-
-      return () => clearTimeout(timer);
+      setShowWelcome(false);
     }
-  }, [currentSessionId, messages.length, showWelcome, addSystemMessage]);
-
-  // Handle connection status
-  useEffect(() => {
-    if (currentSessionId) {
-      setConnectionStatus(isWebSocketConnected ? "connected" : "disconnected");
-    } else {
-      setConnectionStatus("no_session");
-    }
-  }, [currentSessionId, isWebSocketConnected]);
+  }, [currentSessionId, messages.length, showWelcome]);
 
   // Handle send message
-  const handleSendMessage = useCallback(
-    async (message) => {
-      try {
-        clearError();
-        await sendMessage(message);
-      } catch (error) {
-        console.error("Error sending message:", error);
-        addSystemMessage(`Error: ${error.message}`, "error");
-      }
-    },
-    [sendMessage, clearError, addSystemMessage]
-  );
+  const handleSendMessage = useCallback(async () => {
+    const message = inputValue.trim();
+    if (!message || !canSendMessage) return;
 
-  // Handle retry message
-  const handleRetryMessage = useCallback(
-    async (failedMessage) => {
-      try {
-        await retryMessage(failedMessage.content);
-      } catch (error) {
-        console.error("Error retrying message:", error);
-        addSystemMessage(`Retry failed: ${error.message}`, "error");
-      }
-    },
-    [retryMessage, addSystemMessage]
-  );
+    try {
+      clearError();
+      setInputValue("");
+      await sendMessage(message);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      addSystemMessage(`Error: ${error.message}`, "error");
+    }
+  }, [inputValue, canSendMessage, sendMessage, clearError, addSystemMessage]);
+
+  // Handle key press
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
 
   // Handle new session
   const handleNewSession = useCallback(async () => {
     try {
       await startNewSession();
       clearMessages();
-      addSystemMessage(SUCCESS_MESSAGES.SESSION_CREATED);
       setShowWelcome(true);
+      setInputValue("");
     } catch (error) {
       console.error("Error creating new session:", error);
       addSystemMessage(
@@ -114,7 +95,8 @@ const ChatInterface = () => {
     try {
       await clearCurrentSession();
       clearMessages();
-      addSystemMessage(SUCCESS_MESSAGES.SESSION_CLEARED);
+      setShowWelcome(true);
+      setInputValue("");
     } catch (error) {
       console.error("Error clearing session:", error);
       addSystemMessage(`Failed to clear session: ${error.message}`, "error");
@@ -146,13 +128,26 @@ const ChatInterface = () => {
     }
   }, [exportSessionData, currentSessionId, addSystemMessage]);
 
-  // Get session info for controls
+  // Auto-resize textarea
+  const adjustTextareaHeight = (textarea) => {
+    textarea.style.height = "auto";
+    const scrollHeight = textarea.scrollHeight;
+    const maxHeight = 200;
+    textarea.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
+  };
+
+  // Handle input change
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+    adjustTextareaHeight(e.target);
+  };
+
   const sessionInfo = getSessionInfo();
 
   // Show loading state while creating initial session
   if (isCreatingSession && !currentSessionId) {
     return (
-      <div className="chat-interface chat-interface--loading">
+      <div className="chat-interface">
         <div className="loading-container">
           <LoadingSpinner size="large" message="Initializing chat..." />
         </div>
@@ -163,7 +158,7 @@ const ChatInterface = () => {
   // Show error state if critical error
   if (sessionError && !currentSessionId) {
     return (
-      <div className="chat-interface chat-interface--error">
+      <div className="chat-interface">
         <div className="error-container">
           <div className="error-icon">⚠️</div>
           <h3>Session Error</h3>
@@ -180,90 +175,152 @@ const ChatInterface = () => {
   }
 
   return (
-    <div
-      className={`chat-interface ${isActive ? "chat-interface--active" : ""}`}
-    >
-      {/* Header */}
-      <div className="chat-header">
-        <div className="chat-title">
-          <h1>RAG News Chatbot</h1>
-          <div
-            className={`connection-status connection-status--${connectionStatus}`}
-          >
-            <div className="status-indicator"></div>
-            <span className="status-text">
-              {connectionStatus === "connected" && "Real-time connected"}
-              {connectionStatus === "disconnected" && "Offline mode"}
-              {connectionStatus === "checking" && "Connecting..."}
-              {connectionStatus === "no_session" && "No session"}
-            </span>
-          </div>
+    <div className="chat-interface">
+      {/* Sidebar */}
+      <div className={`chat-interface-sidebar ${sidebarOpen ? "open" : ""}`}>
+        <div className="sidebar-header">
+          <h2>RAG Chat</h2>
         </div>
 
-        <SessionControls
-          currentSessionId={currentSessionId}
-          isLoading={isCreatingSession}
-          onNewSession={handleNewSession}
-          onClearSession={handleClearSession}
-          onExportSession={handleExportSession}
-          sessionInfo={sessionInfo}
-        />
-      </div>
+        <div className="sidebar-actions">
+          <button
+            className="new-chat-btn"
+            onClick={handleNewSession}
+            disabled={isLoading}
+          >
+            <span className="icon">✏️</span>
+            New chat
+          </button>
+        </div>
 
-      {/* Messages */}
-      <div className="chat-messages">
-        <MessageList
-          messages={messages}
-          isLoading={false}
-          isTyping={isTyping}
-          onRetryMessage={handleRetryMessage}
-          autoScroll={true}
-          showTimestamps={false}
-        />
-      </div>
+        <ul className="sidebar-menu">
+          <li className="menu-item">
+            <a href="#" className="menu-link">
+              <span className="icon">🔍</span>
+              Search chats
+            </a>
+          </li>
+          <li className="menu-item">
+            <a href="#" className="menu-link">
+              <span className="icon">📚</span>
+              Library
+            </a>
+          </li>
+        </ul>
 
-      {/* Error Display */}
-      {(chatError || sessionError) && (
-        <div className="chat-error">
-          <div className="error-message">
-            <span className="error-icon">⚠️</span>
-            <span className="error-text">{chatError || sessionError}</span>
+        <div className="sidebar-footer">
+          <div className="footer-actions">
             <button
-              onClick={clearError}
-              className="error-close"
-              aria-label="Dismiss error"
+              className="footer-btn"
+              onClick={handleClearSession}
+              disabled={!sessionInfo?.messageCount}
             >
-              ✕
+              Clear
+            </button>
+            <button
+              className="footer-btn"
+              onClick={handleExportSession}
+              disabled={!sessionInfo?.messageCount}
+            >
+              Export
             </button>
           </div>
         </div>
-      )}
-
-      {/* Input */}
-      <div className="chat-input">
-        <InputBox
-          onSendMessage={handleSendMessage}
-          disabled={!canSendMessage || !currentSessionId}
-          placeholder={
-            !currentSessionId
-              ? "Starting session..."
-              : !canSendMessage
-              ? "Please wait..."
-              : "Ask me about recent news and developments..."
-          }
-          maxLength={500}
-          showCharCount={true}
-        />
       </div>
 
-      {/* Footer */}
-      <div className="chat-footer">
-        <small>
-          Powered by AI • Session:{" "}
-          {currentSessionId
-            ? currentSessionId.replace("session:", "").substring(0, 8) + "..."
-            : "None"}
-        </small>
+      {/* Main Chat Area */}
+      <div className="chat-interface-main">
+        {/* Header */}
+        <div className="chat-interface-header">
+          <button
+            className="menu-toggle"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
+            ☰
+          </button>
+          <button className="model-selector">RAG News Chatbot</button>
+        </div>
+
+        {/* Messages */}
+        <div className="chat-interface-messages">
+          <div className="chat-content">
+            {messages.length === 0 ? (
+              <div className="chat-content-welcome">
+                <h1 className="welcome-title">Ready when you are.</h1>
+                <p className="welcome-message">
+                  Ask me anything about recent news and developments.
+                </p>
+              </div>
+            ) : (
+              <MessageList
+                messages={messages}
+                isLoading={false}
+                isTyping={isTyping}
+                onRetryMessage={retryMessage}
+                autoScroll={true}
+                showTimestamps={false}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Error Display */}
+        {(chatError || sessionError) && (
+          <div className="chat-error">
+            <div className="error-message">
+              <span className="error-icon">⚠️</span>
+              <span className="error-text">{chatError || sessionError}</span>
+              <button
+                onClick={clearError}
+                className="error-close"
+                aria-label="Dismiss error"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Input */}
+        <div className="chat-interface-input">
+          <div className="chat-input-container">
+            <div className="input-wrapper">
+              <textarea
+                value={inputValue}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyPress}
+                placeholder="Ask anything..."
+                className="message-input"
+                disabled={!canSendMessage || !currentSessionId}
+                rows={1}
+              />
+              <div className="input-actions">
+                <button
+                  className="action-btn"
+                  type="button"
+                  aria-label="Attach file"
+                >
+                  📎
+                </button>
+                <button
+                  className={`action-btn send-btn ${
+                    inputValue.trim() ? "active" : ""
+                  }`}
+                  onClick={handleSendMessage}
+                  disabled={
+                    !inputValue.trim() || !canSendMessage || !currentSessionId
+                  }
+                  aria-label="Send message"
+                >
+                  ↑
+                </button>
+              </div>
+            </div>
+            <div className="input-hint">
+              Press Enter to send, Shift+Enter for new line
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

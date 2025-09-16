@@ -2,7 +2,7 @@
 
 .input-box {
   padding: 1rem;
-  background: $white;
+  background: $surface-bg;
   
   &--disabled {
     opacity: 0.7;
@@ -20,7 +20,7 @@
   gap: 0.5rem;
   border: 2px solid $input-border-color;
   border-radius: $border-radius-lg;
-  background: $white;
+  background: $input-bg;
   transition: $transition-base;
   
   &:focus-within {
@@ -38,12 +38,14 @@
   font-size: $font-size-base;
   line-height: $line-height-base;
   background: transparent;
+  color: $gray-800;
   resize: none;
-  min-height: 2.5rem;
+  min-height: 3rem;
   max-height: $chat-input-max-height;
   
   &::placeholder {
     color: $gray-400;
+    font-size: $font-size-base;
   }
   
   &:disabled {
@@ -58,8 +60,8 @@
 
 .send-button {
   flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 3rem;
   border: none;
   border-radius: $border-radius;
   background: $primary-color;
@@ -73,6 +75,7 @@
   &:hover:not(:disabled) {
     background: $primary-dark;
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($primary-color, 0.3);
   }
   
   &:active:not(:disabled) {
@@ -86,7 +89,7 @@
   }
   
   .send-icon {
-    font-size: 1rem;
+    font-size: 1.25rem;
     transform: rotate(-45deg);
   }
 }
