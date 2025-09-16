@@ -1,0 +1,239 @@
+@import '../../styles/variables';
+
+.chat-interface {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: $container-max-width;
+  margin: 0 auto;
+  background: $white;
+  box-shadow: $box-shadow;
+
+  @media (max-width: $breakpoint-md) {
+    height: 100vh;
+    max-width: none;
+    margin: 0;
+    box-shadow: none;
+  }
+
+  &--loading,
+  &--error {
+    justify-content: center;
+    align-items: center;
+  }
+
+  &--active {
+    .chat-input {
+      border-color: $primary-color;
+    }
+  }
+
+  // Header
+  &-header {
+    // Styles will be in ChatHeader.scss
+  }
+
+  // Messages container
+  &-messages {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  // Error display
+  &-error {
+    padding: 0.5rem 1rem;
+    background: rgba($error-color, 0.1);
+    border-bottom: 1px solid rgba($error-color, 0.2);
+
+    .error-message {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      max-width: 100%;
+    }
+
+    .error-icon {
+      color: $error-color;
+      font-size: 1rem;
+    }
+
+    .error-text {
+      flex: 1;
+      font-size: $font-size-sm;
+      color: $error-color;
+    }
+
+    .error-close {
+      background: none;
+      border: none;
+      color: $error-color;
+      cursor: pointer;
+      padding: 0;
+      font-size: 1rem;
+      
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+  }
+
+  // Input container
+  &-input {
+    border-top: 1px solid $border-color;
+    background: $white;
+  }
+
+  // Footer
+  &-footer {
+    padding: 0.5rem 1rem;
+    text-align: center;
+    background: $gray-50;
+    border-top: 1px solid $border-color;
+    
+    small {
+      color: $gray-500;
+      font-size: $font-size-xs;
+    }
+  }
+}
+
+// Header section
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid $border-color;
+  background: $white;
+  min-height: $chat-header-height;
+
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+}
+
+.chat-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  h1 {
+    margin: 0;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $gray-800;
+    
+    @media (max-width: $breakpoint-sm) {
+      font-size: $font-size-lg;
+      text-align: center;
+    }
+  }
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: $font-size-sm;
+
+  &-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $gray-400;
+  }
+
+  &-text {
+    color: $gray-500;
+    font-weight: $font-weight-medium;
+  }
+
+  &--connected {
+    .status-indicator {
+      background: $status-connected;
+      animation: pulse 2s infinite;
+    }
+    
+    .status-text {
+      color: $status-connected;
+    }
+  }
+
+  &--disconnected {
+    .status-indicator {
+      background: $status-disconnected;
+    }
+    
+    .status-text {
+      color: $status-disconnected;
+    }
+  }
+
+  &--connecting {
+    .status-indicator {
+      background: $status-connecting;
+      animation: pulse 1s infinite;
+    }
+    
+    .status-text {
+      color: $status-connecting;
+    }
+  }
+}
+
+// Loading states
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  gap: 1rem;
+
+  .error-icon {
+    font-size: 3rem;
+  }
+
+  h3 {
+    margin: 0;
+    color: $gray-700;
+  }
+
+  p {
+    margin: 0;
+    color: $gray-600;
+    max-width: 400px;
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: $breakpoint-md) {
+  .chat-interface {
+    border-radius: 0;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .chat-header {
+    min-height: auto;
+  }
+  
+  .connection-status {
+    justify-content: center;
+  }
+}

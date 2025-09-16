@@ -1,0 +1,121 @@
+@import '../../styles/variables';
+
+.session-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  
+  &--confirming {
+    position: relative;
+  }
+}
+
+.session-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  
+  @media (max-width: $breakpoint-sm) {
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.session-details {
+  font-size: $font-size-sm;
+  
+  .label {
+    color: $gray-500;
+    font-weight: $font-weight-medium;
+  }
+  
+  .value {
+    color: $gray-700;
+    font-family: $font-family-mono;
+    margin-left: 0.25rem;
+  }
+}
+
+.session-stats {
+  display: flex;
+  gap: 0.75rem;
+  font-size: $font-size-xs;
+  color: $gray-500;
+  
+  @media (max-width: $breakpoint-sm) {
+    justify-content: center;
+  }
+}
+
+.session-actions {
+  display: flex;
+  gap: 0.5rem;
+  
+  @media (max-width: $breakpoint-sm) {
+    justify-content: center;
+  }
+}
+
+.confirm-dialog {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: $white;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow-lg;
+  padding: 1rem;
+  z-index: $z-dropdown;
+  
+  .confirm-message {
+    margin-bottom: 1rem;
+    
+    h4 {
+      margin: 0 0 0.5rem 0;
+      color: $gray-800;
+      font-size: $font-size-base;
+    }
+    
+    p {
+      margin: 0;
+      font-size: $font-size-sm;
+      color: $gray-600;
+      line-height: $line-height-base;
+    }
+  }
+  
+  .confirm-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+}
+
+.session-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: $font-size-sm;
+  color: $gray-500;
+  
+  .loading-spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid $gray-300;
+    border-top: 2px solid $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

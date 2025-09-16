@@ -1,0 +1,79 @@
+@import '../../styles/variables';
+
+.error-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: $gray-50;
+}
+
+.error-content {
+  max-width: 500px;
+  text-align: center;
+  background: $white;
+  padding: 2rem;
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow;
+  
+  .error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: $warning-color;
+  }
+  
+  h2 {
+    margin: 0 0 1rem 0;
+    color: $gray-800;
+    font-size: $font-size-xl;
+  }
+  
+  p {
+    margin: 0 0 1.5rem 0;
+    color: $gray-600;
+    line-height: $line-height-base;
+  }
+}
+
+.error-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.error-details {
+  text-align: left;
+  margin-top: 1.5rem;
+  
+  summary {
+    cursor: pointer;
+    font-weight: $font-weight-medium;
+    color: $gray-700;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.error-stack {
+  background: $gray-50;
+  padding: 1rem;
+  border-radius: $border-radius;
+  font-size: $font-size-sm;
+  
+  h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    color: $gray-700;
+  }
+  
+  pre {
+    margin: 0 0 1rem 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: $font-family-mono;
+    font-size: $font-size-xs;
+    color: $gray-600;
+  }
+}

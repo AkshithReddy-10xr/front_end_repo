@@ -1,0 +1,213 @@
+@import './styles/variables';
+
+// Global reset and base styles
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: $font-family-base;
+  background-color: $gray-50;
+  color: $gray-800;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// App container
+.app {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  // Debug info for development
+  &-debug {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    z-index: $z-tooltip;
+    pointer-events: none;
+  }
+}
+
+// Global button styles
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: $btn-padding-y $btn-padding-x;
+  border: $border-width solid transparent;
+  border-radius: $btn-border-radius;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  line-height: $line-height-tight;
+  text-decoration: none;
+  cursor: pointer;
+  transition: $transition-base;
+  user-select: none;
+  
+  &:focus {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  // Button variants
+  &--primary {
+    background-color: $primary-color;
+    color: $white;
+    border-color: $primary-color;
+
+    &:hover:not(:disabled) {
+      background-color: $primary-dark;
+      border-color: $primary-dark;
+    }
+  }
+
+  &--secondary {
+    background-color: $secondary-color;
+    color: $white;
+    border-color: $secondary-color;
+
+    &:hover:not(:disabled) {
+      background-color: $secondary-dark;
+      border-color: $secondary-dark;
+    }
+  }
+
+  &--danger {
+    background-color: $error-color;
+    color: $white;
+    border-color: $error-color;
+
+    &:hover:not(:disabled) {
+      background-color: darken($error-color, 10%);
+      border-color: darken($error-color, 10%);
+    }
+  }
+
+  &--outline {
+    background-color: transparent;
+    border-color: currentColor;
+
+    &:hover:not(:disabled) {
+      background-color: currentColor;
+      color: $white;
+    }
+  }
+
+  // Button sizes
+  &--sm {
+    padding: 0.375rem 0.75rem;
+    font-size: $font-size-sm;
+  }
+
+  &--lg {
+    padding: 0.75rem 1.5rem;
+    font-size: $font-size-lg;
+  }
+
+  // Button icons
+  &-icon {
+    font-size: 1em;
+  }
+
+  &-text {
+    @media (max-width: $breakpoint-sm) {
+      display: none;
+    }
+  }
+}
+
+// Utility classes
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.font-weight-bold { font-weight: $font-weight-bold; }
+.font-weight-medium { font-weight: $font-weight-medium; }
+.font-weight-normal { font-weight: $font-weight-normal; }
+
+.text-muted { color: $gray-500; }
+.text-primary { color: $primary-color; }
+.text-success { color: $success-color; }
+.text-warning { color: $warning-color; }
+.text-danger { color: $error-color; }
+
+// Spacing utilities
+@each $breakpoint, $value in (null: '', sm: '-sm', md: '-md', lg: '-lg', xl: '-xl') {
+  $suffix: $value;
+  
+  @media (min-width: if($value == '', 0, map-get((sm: $breakpoint-sm, md: $breakpoint-md, lg: $breakpoint-lg, xl: $breakpoint-xl), str-slice($value, 2)))) {
+    @each $prop, $abbrev in (margin: m, padding: p) {
+      @each $size, $length in $spacers {
+        .#{$abbrev}#{$suffix}-#{$size} { #{$prop}: $length !important; }
+        .#{$abbrev}t#{$suffix}-#{$size} { #{$prop}-top: $length !important; }
+        .#{$abbrev}r#{$suffix}-#{$size} { #{$prop}-right: $length !important; }
+        .#{$abbrev}b#{$suffix}-#{$size} { #{$prop}-bottom: $length !important; }
+        .#{$abbrev}l#{$suffix}-#{$size} { #{$prop}-left: $length !important; }
+        .#{$abbrev}x#{$suffix}-#{$size} {
+          #{$prop}-right: $length !important;
+          #{$prop}-left: $length !important;
+        }
+        .#{$abbrev}y#{$suffix}-#{$size} {
+          #{$prop}-top: $length !important;
+          #{$prop}-bottom: $length !important;
+        }
+      }
+    }
+  }
+}
+
+// Scrollbar styles (WebKit browsers)
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $gray-400;
+  border-radius: 3px;
+  
+  &:hover {
+    background: $gray-500;
+  }
+}
+
+// Focus styles
+:focus-visible {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+// Print styles
+@media print {
+  .app {
+    height: auto;
+    overflow: visible;
+  }
+}
